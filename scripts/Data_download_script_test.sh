@@ -13,9 +13,11 @@ cd sra_data
 
 #Create an intermediate .txt file with the names of the first 10 cells
 head -10 /home/rstudio/data/mydatalocal/data/SRR_Acc_List.txt > SRR_partial.txt
+
+#Define SRR
 SRR=`cat /home/rstudio/data/mydatalocal/data/SRR_partial.txt`
 
-#Extract data from the GO website for the 10 cells chosen with Fastq-dump
+#Extract data from the GO website for the 10 cells chosen with Fastq-dump on SRR
 for srr in $SRR
 do
 echo $srr

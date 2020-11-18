@@ -14,7 +14,5 @@ do
 fastqc $srr -o /home/rstudio/data/mydatalocal/data/fastq_data -t 4
 done
 
-#mv *.html fastq_data
-
 
 multiqc fastq_data
