@@ -2,6 +2,7 @@
 
 readme du projet ngs
 
+``` 
 #! /bin/bash
 
 # Define a working directory
@@ -27,3 +28,4 @@ fastq-dump $srr --gzip
 done
 
 #If it works well procede with the .txt containing the names of all cells
+``` 
