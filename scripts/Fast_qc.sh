@@ -7,11 +7,14 @@ cd $data
 mkdir -p fastq_data
 
 cd sra_data
-SRR=$(ls /home/rstudio/data/mydatalocal/data/sra_data/*.gz | head -10)
+SRR=$(ls /home/rstudio/data/mydatalocal/data/sra_data | head -10)
 
 for srr in $SRR
 do
-fastqc $srr -o /ifb/data/mydatalocal/data/fastq_data -t 4
+fastqc $srr -o /home/rstudio/data/mydatalocal/data/fastq_data -t 4
 done
 
 #mv *.html fastq_data
+
+
+multiqc fastq_data
