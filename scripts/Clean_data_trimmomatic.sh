@@ -1,19 +1,18 @@
 #! /bin/bash
 
+# Define a working directory
 data="/home/rstudio/data/mydatalocal/data"
 mkdir -p $data
 cd $data
 
+# Define a directory where the clean data will be stored after trimmomatic has operated
 mkdir -p trimmed_data
 cd sra_data
 
-#Test sur quelques cellules
-#SRR=$(ls *.gz | head -10)
-
-
-#Test sur tout le jeu de données
+# Create a list with all the SRR files (they all end with .gz as they are zipped)
 SRR=$(ls *.gz)
 
+# Scan this list with a "for" loop and use the trimmomatic tool on the raw data
 for srr in $SRR
 do
 echo $srr

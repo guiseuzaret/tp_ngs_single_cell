@@ -5,7 +5,7 @@ data="/home/rstudio/data/mydatalocal/data"
 mkdir -p $data
 cd $data
 
-#define a directory where the raw data will be stored
+#define a directory where the data will be stored
 mkdir -p sra_data
 cd sra_data
 
@@ -17,11 +17,10 @@ head -10 /home/rstudio/data/mydatalocal/data/SRR_Acc_List.txt > SRR_partial.txt
 #Define SRR
 SRR=`cat /home/rstudio/data/mydatalocal/data/SRR_partial.txt`
 
-#Extract data from the GO website for the 10 cells chosen with Fastq-dump on SRR
+#Extract data from the GO website for the 10 cells chosen with Fastq-dump on SRR and print the name of the cell (SRR...) whose data are being downloaded
 for srr in $SRR
 do
 echo $srr
 fastq-dump $srr --gzip
 done
 
-#If it works well procede with the .txt containing the names of all cells

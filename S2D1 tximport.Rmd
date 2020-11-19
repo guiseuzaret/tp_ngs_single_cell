@@ -1,0 +1,67 @@
+---
+title: "Untitled"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r tximport, eval=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("tximport")
+setwd (ifb/data/mydatalocal/data)
+dir <- "/ifb/data/mydatalocal/data/alignment/quant_results"
+
+files=list.files(dir)
+cells <- gsub(".fastq.gz","",files)
+files1=paste0(dir,"/",files,"/","quant.sf")
+names(files1)=cells
+
+library(biomaRt)
+
+ensembl <- useEnsembl(biomart = "genes", dataset = "mmusculus_gene_ensembl")
+attributeNames <- c('ensembl_transcript_id','external_gene_name')
+annot <- getBM(attributes=attributeNames, 
+               mart = ensembl)
+names(annot) <- c("txname","geneid")
+
+txi1 <- tximport(files1[1:500],type="salmon",tx2gene=annot,ignoreTxVersion=T)
+
+txi2 <- tximport(files1[501:1000],type="salmon",tx2gene=annot,ignoreTxVersion=T)
+txi3 <- tximport(files1[1001:1500],type="salmon",tx2gene=annot,ignoreTxVersion=T)
+txi4 <- tximport(files1[1501:2000],type="salmon",tx2gene=annot,ignoreTxVersion=T)
+txi5 <- tximport(files1[2001:2553],type="salmon",tx2gene=annot,ignoreTxVersion=T)
+
+txi <- txi1
+txi$"abundance" <- cbind(txi1$"abundance",txi2$"abundance",txi3$"abundance",txi4$"abundance",txi5$"abundance")
+txi$"counts" <- cbind(txi1$"counts",txi2$"counts",txi3$"counts",txi4$"counts",txi5$"counts")
+txi$"length" <- cbind(txi1$"length",txi2$"length",txi3$"length",txi4$"length",txi5$"length")
+txi$"countsFromAbundance" <- cbind(txi1$"countsFromAbundance",txi2$"countsFromAbundance",txi3$"countsFromAbundance",txi4$"countsFromAbundance",txi5$"countsFromAbundance")
+
+saveRDS(txi, "txi.rds")
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r tximport2}
+ txi2=readRDS("txi.rds")
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r Seurat}
+incisor <- CreateSeuratObject(counts = txi$counts, project = "incisor", min.cells = 3, min.features = 200)
+incisor
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
