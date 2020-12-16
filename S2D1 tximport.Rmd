@@ -59,9 +59,81 @@ When you click the **Knit** button a document will be generated that includes bo
 You can also embed plots, for example:
 
 ```{r Seurat}
+library(dplyr)
+library(Seurat)
+setwd("/ifb/data/mydatalocal/tp_ngs_single_cell")
+
+```
+
+
+```{r Seurat, eval=FALSE}
+
 incisor <- CreateSeuratObject(counts = txi$counts, project = "incisor", min.cells = 3, min.features = 200)
 incisor
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r ADNmt, eval=FALSE}
+incisor[["percent.mt"]] <- PercentageFeatureSet(incisor, pattern = "^mt-")
+# Visualize QC metrics as a violin plot
+VlnPlot(incisor, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+
+```
+
+
+```{r filter, eval=FALSE}
+plot1 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+
+incisor <- subset(incisor, subset = nFeature_RNA > 500 & nFeature_RNA < 10000 & percent.mt < 15 & nCount_RNA < 1000000)
+VlnPlot(incisor, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+
+```{r Normalization, eval=FALSE}
+incisor <- NormalizeData(incisor, normalization.method = "LogNormalize", scale.factor = 10000)
+```
+
+```{r Variant identification, eval=FALSE}
+#Apply the selection method to detect differentially expressed genes
+incisor <- FindVariableFeatures(incisor, selection.method = "vst", nfeatures = 2000)
+VariableFeatures(incisor)
+
+# Identify the 10 most highly variable genes
+top10 <- head(VariableFeatures(incisor), 10)
+
+# plot variable features with and without labels
+plot1 <- VariableFeaturePlot(incisor)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE, xnudge=0, ynudge=0)
+plot1
+plot2
+```
+
+```{r Data Scaling, eval=FALSE}
+#Sélectionne tous les noms de gènes
+all.genes <- rownames(incisor)
+incisor <- ScaleData(incisor, features = all.genes)
+```
+
+```{r PCA, eval=FALSE}
+
+incisor <- RunPCA(incisor, features = VariableFeatures(object = incisor))
+
+print(incisor[["pca"]], dims = 1:5, nfeatures = 5)
+
+VizDimLoadings(incisor, dims = 1:2, reduction = "pca")
+
+DimPlot(incisor, reduction = "pca")
+
+DimHeatmap(incisor, dims = 1, cells = 500, balanced = TRUE)
+
+DimHeatmap(incisor, dims = 1:15, cells = 500, balanced = TRUE)
+```
+
+``` {r PCA, eval=FALSE}
+incisor <- JackStraw(incisor, num.replicate = 100)
+incisor <- ScoreJackStraw(incisor, dims = 1:20)
+JackStrawPlot(incisor, dims = 1:20)
+
+```
