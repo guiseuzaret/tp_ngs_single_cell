@@ -174,7 +174,9 @@ head(cluster1.markers, n = 5)
 VlnPlot(incisor, features = c("Mrc1", "C1qb"))
 VlnPlot(incisor, features = c("Mrc1", "C1qb"), slot = "counts", log = TRUE)
 
-FeaturePlot(incisor, features = c("Mrc1", "C1qb"))
+incisor.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_log2FC)
+FeaturePlot(incisor, features = c("Smoc2", "C1qb","Tnc","Emcn","Car2","Sfrp2","Cd83","Epcam"))
+FeaturePlot(incisor, features = c("S100a9","Cd209a","Ibsp","Scn7a","Rgs5","Krt17","Gm10801","Gm17660"))
 
 top10 <- incisor.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
 DoHeatmap(incisor, features = top10$gene) + NoLegend()
