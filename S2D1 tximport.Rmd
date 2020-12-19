@@ -88,7 +88,7 @@ plot2 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "nFeature_R
 plot1 + plot2
 
 #Technique de filtrage des cellules 1
-incisor <- subset(incisor, subset = nFeature_RNA > 500 & nFeature_RNA < 10000 & percent.mt < 15 & nCount_RNA < 1000000)
+#incisor <- subset(incisor, subset = nFeature_RNA > 500 & nFeature_RNA < 10000 & percent.mt < 15 & nCount_RNA < 1000000)
 
 #Technique de filtrage des cellules 2
 quantile5_incisor <- quantile(incisor$nFeature_RNA, probs = c(0.05), na.rm = FALSE, names = TRUE, type = 7)
@@ -102,16 +102,14 @@ incisor <- NormalizeData(incisor, normalization.method = "LogNormalize", scale.f
 ```
 
 ```{r Variant identification, eval=FALSE}
-#Apply the selection method to detect differentially expressed genes
-incisor <- FindVariableFeatures(incisor, selection.method = "vst", nfeatures = 2000)
-VariableFeatures(incisor)
+#Apply the selection method to detect differentially expressed genes (On a 28851 transcrits différents -> quantile à 90%)
 
-#Selection method number 2
-quantile90_incisor <- quantile(incisor@assays$RNA@meta.features$vst.variance.standardized, probs = c(0.1), na.rm = FALSE, names = TRUE, type = 7)
-incisor <- FindVariableFeatures(incisor, selection.method = "vst", nfeatures = 2000)
+incisor <- FindVariableFeatures(incisor, selection.method = "vst", nfeatures = 2885)
+VariableFeatures(incisor)
 
 # Identify the 10 most highly variable genes
 top10 <- head(VariableFeatures(incisor), 10)
+top10
 
 # plot variable features with and without labels
 plot1 <- VariableFeaturePlot(incisor)
@@ -136,27 +134,27 @@ VizDimLoadings(incisor, dims = 1:2, reduction = "pca")
 
 DimPlot(incisor, reduction = "pca")
 
-DimHeatmap(incisor, dims = 1, cells = 500, balanced = TRUE)
+DimHeatmap(incisor, dims = 1, cells = 2257, balanced = TRUE)
 
-DimHeatmap(incisor, dims = 1:15, cells = 500, balanced = TRUE)
+DimHeatmap(incisor, dims = 1:15, cells = 2257, balanced = TRUE)
 ```
 
 ``` {r Dimensionality, eval=FALSE}
 incisor <- JackStraw(incisor, num.replicate = 100)
-incisor <- ScoreJackStraw(incisor, dims = 1:15)
-JackStrawPlot(incisor, dims = 1:15)
+incisor <- ScoreJackStraw(incisor, dims = 1:20)
+JackStrawPlot(incisor, dims = 1:20)
 ElbowPlot(incisor)
 
 ```
 
 ``` {r Clustering, eval=FALSE}
-incisor <- FindNeighbors(incisor, dims = 1:10)
+incisor <- FindNeighbors(incisor, dims = 1:20)
 incisor <- FindClusters(incisor, resolution = 0.5)
 head(Idents(incisor), 5)
 ```
 
 ```{r UMAP/tSNE, eval=FALSE}
-incisor <- RunUMAP(incisor, dims = 1:10)
+incisor <- RunUMAP(incisor, dims = 1:20)
 DimPlot(incisor, reduction = "umap")
 saveRDS(incisor, file = "incisor.rds")
 ```
@@ -165,7 +163,7 @@ saveRDS(incisor, file = "incisor.rds")
 cluster1.markers <- FindMarkers(incisor, ident.1 = 1, min.pct = 0.25)
 head(cluster1.markers, n = 5)
 
-incisor.markers <- FindAllMarkers(incisor, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+ incisor.markers <- FindAllMarkers(incisor, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 
 incisor.markers %>% group_by(cluster) %>% top_n(n = 5, wt = avg_log2FC)
 
@@ -173,7 +171,16 @@ incisor.markers %>% group_by(cluster) %>% top_n(n = 5, wt = avg_log2FC)
 cluster1.markers <- FindMarkers(incisor, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
 head(cluster1.markers, n = 5)
 
-VlnPlot(incisor, features = c("Csf1r", "C1qb"))
-FeaturePlot(incisor, features = c("Mrc1", "Csf1r"))
+VlnPlot(incisor, features = c("Mrc1", "C1qb"))
+VlnPlot(incisor, features = c("Mrc1", "C1qb"), slot = "counts", log = TRUE)
+
+FeaturePlot(incisor, features = c("Mrc1", "C1qb"))
+
+top10 <- incisor.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+DoHeatmap(incisor, features = top10$gene) + NoLegend()
+
+#Avec moins de gènes par cluster pour plus de lisibilité de la HeatMap
+top2 <- incisor.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_log2FC)
+DoHeatmap(incisor, features = top2$gene) + NoLegend()
 
 ```
