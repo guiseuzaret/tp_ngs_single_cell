@@ -64,8 +64,10 @@ saveRDS(txi, "txi.rds")
 
 ## SeuRat - Scaling, Normalization, Dimension Reduction, Clustering and Finding Markers
 
-# Setting-up up the Seurat object
+# Setting-up of the Seurat object
+
 ```{r Seurat, eval=F, echo=T}
+
 # Import the SeuRat and dplyr tools
 library(dplyr)
 library(Seurat)
@@ -77,30 +79,34 @@ setwd("/ifb/data/mydatalocal/tp_ngs_single_cell")
 incisor <- CreateSeuratObject(counts = txi$counts, project = "incisor", min.cells = 3, min.features = 200)
 
 ```
-#
 
-```{r ADNmt, eval=FALSE}
+# Cells' quality control prior to downstream analyses
+Before trying to understand what the variance in our dataset corresponds to and try to identify clusters of cells with similar identity based on transcripts expression, we want to clear the dataset from cells with too few or too many reads or in which a high proportion of reads correspond to mtDNA. These cells would introduce bias in downstream analyses.
+
+```{r Features representation, eval=F, echo=T}
+
+# Visualize the distribution of the % of mtDNA genes across our dataset with a Violin Plot
 incisor[["percent.mt"]] <- PercentageFeatureSet(incisor, pattern = "^mt-")
-# Visualize QC metrics as a violin plot
 VlnPlot(incisor, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 
-```
-
-
-```{r filter, eval=FALSE}
+# Another way of visualizing the quality of the dataset : a 2 dimension Scatter Plot
 plot1 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "percent.mt")
 plot2 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
 plot1 + plot2
 
-#Technique de filtrage des cellules 1
-#incisor <- subset(incisor, subset = nFeature_RNA > 500 & nFeature_RNA < 10000 & percent.mt < 15 & nCount_RNA < 1000000)
+```
+# Selection to eliminate the bad quality cells
 
-#Technique de filtrage des cellules 2
+```
+# Filter the cells : here we eliminate the cells that are below the 5% quantile for the quantity of different transcript expressed and the ones that have more than 15% of mtDNA transcripts. We also eliminate cells with an oddly high level of reads
+
 quantile5_incisor <- quantile(incisor$nFeature_RNA, probs = c(0.05), na.rm = FALSE, names = TRUE, type = 7)
 incisor <- subset(incisor, subset = nFeature_RNA > quantile5_incisor & percent.mt < 15 & nCount_RNA < 1000000)
 
+# Visualize the effects of the filter on the dataset
 VlnPlot(incisor, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 ```
+
 
 ```{r Normalization, eval=FALSE}
 incisor <- NormalizeData(incisor, normalization.method = "LogNormalize", scale.factor = 10000)
