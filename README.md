@@ -46,6 +46,10 @@ Salmon is a tool that we will use for to map and quantify the transcripts data f
 Using Salmon, we then quantify the occurence of each cDNA transcript (identified from M.musculus reference transcriptome) in our SmartSeq2 mouse incisor single-cell transcriptomic data. We used the quantification function provided by Salmon on our cleaned data (post-trimmomatic). This function requires the index that we already established from the reference transcriptome. See the bash script "**quantif.sh**" in this GitHub.
 
 
+# Realization of the dental atlas
+
+
+
 In the case of the velocity of RNA, we use STAR instead on the genome to quantify.
 
 
