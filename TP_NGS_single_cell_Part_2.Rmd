@@ -95,7 +95,7 @@ plot2 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "nFeature_R
 plot1 + plot2
 
 ```
-# Selection to eliminate the bad quality cells
+# Selection to eliminate the cells with supposed bad quality 
 
 ```
 # Filter the cells : here we eliminate the cells that are below the 5% quantile for the quantity of different transcript expressed and the ones that have more than 15% of mtDNA transcripts. We also eliminate cells with an oddly high level of reads
