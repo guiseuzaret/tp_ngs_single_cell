@@ -1,5 +1,5 @@
 ---
-title: "Part 2 TP NGS single cell - Making the dental cell atlas"
+# Title: "Part 2 TP NGS single cell - Making the dental cell atlas"
 output:
   html_document: default
   word_document: default
