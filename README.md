@@ -43,11 +43,13 @@ This M.musculus reference transcriptome is downloaded in our machine automatical
 Salmon is a tool that we will use for to map and quantify the transcripts data from our incisor's single cells. This tool, which is well adapted for SmartSeq2 data, need and index to map the transcript. We use the aforementioned mus musculus reference transcriptome that we define as the index for Salmon in the "**index.sh**" bash script in this GitHub (after automatic download of the reference transcriptome).
 
 # Transcript expression quantification
-Using Salmon, we then quantify the occurence of each cDNA transcript (identified from M.musculus reference transcriptome) in our SmartSeq2 mouse incisor single-cell transcriptomic data. We used the quantification function provided by Salmon on our cleaned data (post-trimmomatic). This function requires the index that we already established from the reference transcriptome. See the bash script "**quantif.sh**" in this GitHub.
+Using Salmon, we then quantify the occurence of each cDNA transcript (identified from M.musculus reference transcriptome) in our SmartSeq2 mouse incisor single-cell transcriptomic data. We used the quantification function provided by Salmon on our cleaned data (post-trimmomatic). This function requires the index that we already established from the reference transcriptome. See the bash script "**quantif.sh**" in this GitHub. Here, Salmon generates a file for each cell containing the transcript identity of each read and their occurence.
 
 
 # Realization of the dental atlas
+In this second part, we will use these incisor single-cell transcriptomic data to generate an atlas of the cell types in mouse incisor based on gene expression profiles. 
 
+First, we used transcript-level abundance, estimated counts and transcript lengths, and summarizes into matrices for use with downstream gene-level analysis packages
 
 
 In the case of the velocity of RNA, we use STAR instead on the genome to quantify.
