@@ -25,7 +25,7 @@ cells <- gsub(".fastq.gz","",files)
 files1=paste0(dir,"/",files,"/","quant.sf")
 names(files1)=cells
 
-# Import the biomaRt object
+# Import the biomaRt tool
 library(biomaRt)
 
 # Create a function "annot" that use biomaRt to attribute the gene name for each transcript in every file (fetched from the Ensembl database)
@@ -35,7 +35,7 @@ annot <- getBM(attributes=attributeNames,
                mart = ensembl)
 names(annot) <- c("txname","geneid")
 
-# Import the tximport object
+# Import the tximport tool
 library("tximport")
 
 # Using tximport we generate the matrix containing all the transcripts with their gene names (associated thanks to the "annot" function) for each cell
@@ -62,20 +62,22 @@ saveRDS(txi, "txi.rds")
 
 ```
 
-# SeuRat - Scaling, Normalization, Dimension Reduction, Clustering and Finding Markers
+## SeuRat - Scaling, Normalization, Dimension Reduction, Clustering and Finding Markers
 
+# Setting-up up the Seurat object
 ```{r Seurat, eval=F, echo=T}
-# Import the SeuRat and dplyr objects
+# Import the SeuRat and dplyr tools
 library(dplyr)
 library(Seurat)
 
 # Define a working directory
 setwd("/ifb/data/mydatalocal/tp_ngs_single_cell")
 
+# Change the matrix into a SeuRat object (which is a similar matrix but exploitable by SeuRat)
 incisor <- CreateSeuratObject(counts = txi$counts, project = "incisor", min.cells = 3, min.features = 200)
 
 ```
-
+#
 
 ```{r ADNmt, eval=FALSE}
 incisor[["percent.mt"]] <- PercentageFeatureSet(incisor, pattern = "^mt-")
