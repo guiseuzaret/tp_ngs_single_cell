@@ -95,7 +95,7 @@ plot2 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "nFeature_R
 plot1 + plot2
 
 ```
-# Selection to eliminate the cells with supposed of bad quality 
+# Selection to eliminate the cells supposed of bad quality 
 
 ```
 # Filter the cells : here we eliminate the cells that are below the 5% quantile for the quantity of different transcript expressed and the ones that have more than 15% of mtDNA transcripts. We also eliminate cells with an oddly high level of reads
@@ -139,7 +139,7 @@ plot2
 ```
 
 # Scaling the data
-Prior to perform reduction dimension of our dataset, we need the scale the data. The ScaleData function basically shift the mean expression and variance across cells to 0 and 1, respectively. Its purpose is to avoid bias in downstream analyses due to genes that are have a very high number of counts whenever they are expressed by a cell.
+Prior to perform reduction dimension of our dataset, we need to scale the data. The ScaleData function basically shift the mean expression and variance across cells to 0 and 1, respectively. Its purpose is to avoid bias in downstream analyses due to genes that are have a very high number of counts whenever they are expressed by a cell.
 
 ```{r Data Scaling, eval=FALSE}
 # Select all the genes' names 
