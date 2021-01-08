@@ -95,7 +95,7 @@ plot2 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "nFeature_R
 plot1 + plot2
 
 ```
-# Selection to eliminate the cells with supposed bad quality 
+# Selection to eliminate the cells with supposed of bad quality 
 
 ```
 # Filter the cells : here we eliminate the cells that are below the 5% quantile for the quantity of different transcript expressed and the ones that have more than 15% of mtDNA transcripts. We also eliminate cells with an oddly high level of reads
@@ -115,11 +115,12 @@ incisor <- NormalizeData(incisor, normalization.method = "LogNormalize", scale.f
 ```
 
 # Identification of highly variable genes
-
+Then, we identify the genes for which the number of counts are the more variable across cells with the FindVariableFeatures function.
+Here there are 28851 different genes so we stick with the 2885 most variable genes (90% quantile).
 
 ```{r Variant identification, eval=FALSE}
-#Apply the selection method to detect differentially expressed genes (On a 28851 transcrits différents -> quantile à 90%)
 
+# Apply the selection method to detect differentially expressed genes
 incisor <- FindVariableFeatures(incisor, selection.method = "vst", nfeatures = 2885)
 VariableFeatures(incisor)
 
@@ -127,18 +128,28 @@ VariableFeatures(incisor)
 top10 <- head(VariableFeatures(incisor), 10)
 top10
 
-# plot variable features with and without labels
+# Plot the variable features 
 plot1 <- VariableFeaturePlot(incisor)
+
+# Add labels for the 10 most highly variable genes defined earlier in the variable top10
 plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE, xnudge=0, ynudge=0)
+
 plot1
 plot2
 ```
 
+# Scaling the data
+Prior to perform reduction dimension of our dataset, we need the scale the data. The ScaleData function basically shift the mean expression and variance across cells to 0 and 1, respectively. Its purpose is to avoid bias in downstream analyses due to genes that are have a very high number of counts whenever they are expressed by a cell.
+
 ```{r Data Scaling, eval=FALSE}
-#Sélectionne tous les noms de gènes
+# Select all the genes' names 
 all.genes <- rownames(incisor)
+
+# Scale the data
 incisor <- ScaleData(incisor, features = all.genes)
 ```
+
+# Linear dimensional reduction through Principal Component Analysis (PCA)
 
 ```{r PCA, eval=FALSE}
 
