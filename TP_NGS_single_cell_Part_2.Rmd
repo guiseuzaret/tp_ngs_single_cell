@@ -107,10 +107,15 @@ incisor <- subset(incisor, subset = nFeature_RNA > quantile5_incisor & percent.m
 VlnPlot(incisor, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 ```
 
+# Normalization
+To have a relevant comparison of gene expression levels across cells, we normalize the count numbers using the LogNormalize method that normalize the expression of each transcript in each given cell by the total expression and multiplies it by the scale factor.
 
 ```{r Normalization, eval=FALSE}
 incisor <- NormalizeData(incisor, normalization.method = "LogNormalize", scale.factor = 10000)
 ```
+
+# Identification of highly variable genes
+
 
 ```{r Variant identification, eval=FALSE}
 #Apply the selection method to detect differentially expressed genes (On a 28851 transcrits différents -> quantile à 90%)
@@ -197,3 +202,5 @@ top2 <- incisor.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_log2FC)
 DoHeatmap(incisor, features = top2$gene) + NoLegend()
 
 ```
+# ARN velocity
+https://github.com/Lelmose/TP_NGS_2020_Single_Cell
