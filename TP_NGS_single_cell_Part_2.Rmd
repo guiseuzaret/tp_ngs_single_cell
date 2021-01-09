@@ -219,16 +219,22 @@ DimPlot(incisor, reduction = "umap")
 ```
 
 # Finding clusters' biomarkers
+To finish our atlas, we need to identify the cell types that clusters could correspond to. We seeked for the specific markers of each clusters. Based on online databases such as Blast to identify the function of those genes and which cell types normally express them, we tried to annote our clusters.
 
 ```{r Cluster biomarkers, eval=F, echo=T}
+# FindMarkers give the most specific markers of the first cluster, i.e. the ones that have the highest expression in this cluster compared to all the others
 cluster1.markers <- FindMarkers(incisor, ident.1 = 1, min.pct = 0.25)
+
+# Shows the 5 first specific markers
 head(cluster1.markers, n = 5)
 
- incisor.markers <- FindAllMarkers(incisor, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+# FindAllMarkers allow to do the same thing as FindMarkers but find the specific markers of every cluster simultaneously
+incisor.markers <- FindAllMarkers(incisor, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 
+# Show the 5 first specific markers of each cluster in a table, with the associated p-value
 incisor.markers %>% group_by(cluster) %>% top_n(n = 5, wt = avg_log2FC)
 
-# Ajout du ROC test qui donne le 'classification power' de chaque marqueur, compris entre 0 et 1
+# Adding of the ROC test which gives the 'classification power' of each marker, a score between 0 and 1
 cluster1.markers <- FindMarkers(incisor, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
 head(cluster1.markers, n = 5)
 
