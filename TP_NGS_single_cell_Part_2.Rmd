@@ -83,7 +83,7 @@ incisor <- CreateSeuratObject(counts = txi$counts, project = "incisor", min.cell
 # Cells' quality control prior to downstream analyses
 Before trying to understand what the variance in our dataset corresponds to and try to identify clusters of cells with similar identity based on transcripts expression, we want to clear the dataset from cells with too few or too many reads or in which a high proportion of reads correspond to mtDNA. These cells would introduce bias in downstream analyses.
 
-```{r Features representation, eval=F, echo=T}
+```{r Quality control, eval=F, echo=T}
 
 # Visualize the distribution of the % of mtDNA genes across our dataset with a Violin Plot
 incisor[["percent.mt"]] <- PercentageFeatureSet(incisor, pattern = "^mt-")
@@ -95,9 +95,10 @@ plot2 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "nFeature_R
 plot1 + plot2
 
 ```
+
 # Selection to eliminate the cells supposed of bad quality 
 
-```
+```{r Features filtering, eval=F, echo=T}
 # Filter the cells : here we eliminate the cells that are below the 5% quantile for the quantity of different transcript expressed and the ones that have more than 15% of mtDNA transcripts. We also eliminate cells with an oddly high level of reads
 
 quantile5_incisor <- quantile(incisor$nFeature_RNA, probs = c(0.05), na.rm = FALSE, names = TRUE, type = 7)
@@ -110,7 +111,7 @@ VlnPlot(incisor, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol 
 # Normalization
 To have a relevant comparison of gene expression levels across cells, we normalize the count numbers using the LogNormalize method that normalize the expression of each transcript in each given cell by the total expression and multiplies it by the scale factor.
 
-```{r Normalization, eval=FALSE}
+```{r Normalization, eval=F, echo=T}
 incisor <- NormalizeData(incisor, normalization.method = "LogNormalize", scale.factor = 10000)
 ```
 
@@ -118,7 +119,7 @@ incisor <- NormalizeData(incisor, normalization.method = "LogNormalize", scale.f
 Then, we identify the genes for which the number of counts are the more variable across cells with the FindVariableFeatures function.
 Here there are 28851 different genes so we stick with the 2885 most variable genes (90% quantile).
 
-```{r Variant identification, eval=FALSE}
+```{r Variant identification, eval=F, echo=T}
 
 # Apply the selection method to detect differentially expressed genes
 incisor <- FindVariableFeatures(incisor, selection.method = "vst", nfeatures = 2885)
@@ -150,43 +151,76 @@ incisor <- ScaleData(incisor, features = all.genes)
 ```
 
 # Linear dimensional reduction through Principal Component Analysis (PCA)
+We next perform PCA using the most variable genes.
 
-```{r PCA, eval=FALSE}
+```{r PCA, eval=F, echo=T}
 
+# Perform PCA with selection of the most variable genes through the 'features' parameter
 incisor <- RunPCA(incisor, features = VariableFeatures(object = incisor))
-
-print(incisor[["pca"]], dims = 1:5, nfeatures = 5)
-
-VizDimLoadings(incisor, dims = 1:2, reduction = "pca")
-
-DimPlot(incisor, reduction = "pca")
-
-DimHeatmap(incisor, dims = 1, cells = 2257, balanced = TRUE)
-
-DimHeatmap(incisor, dims = 1:15, cells = 2257, balanced = TRUE)
 ```
 
-``` {r Dimensionality, eval=FALSE}
+# Visualization of the results of PCA in many different ways
+
+```{r PCA results, eval=F, echo=T}
+# Shows the main differentially expressed genes that have been used to construct the dimensions, or Principal Components (PC)
+print(incisor[["pca"]], dims = 1:5, nfeatures = 5)
+
+# Plot all the genes that have been used to construct the dimensions (PC). Shows the number of dimension plots specified with the parameter "dims"
+VizDimLoadings(incisor, dims = 1:2, reduction = "pca")
+
+# Project all the cells on a 2 dimension graph with each axis being one of the two first PC that account for most of the variance in the dataset (PC_1 and 2)
+DimPlot(incisor, reduction = "pca")
+
+# Shows a heatmap of gene expression across the dataset for the genes with which the selected dimension have been constructed
+DimHeatmap(incisor, dims = 1, cells = 2257, balanced = TRUE)
+
+```
+
+# Choose the dimensionality of the dataset
+We want to ultimately reduce the dimensionality of our dataset to a representation in 2 dimension to better apprehend our dataset. 
+We thus procede to a non-linear dimension reduction using the UMAP tool. It is less sensitive to extreme datapoints than PCA, that can be an issue for the representation of the dataset as we have few points (2553 cells) with a high number of dimensions. 
+The aim is to have a global explanation of the maximum of variance in our dataset, we will stick with the dimensions obtained after the PCA that are the more explicative of the overall variance. This is a tricky part as we don't want to lose any significant biological information by removing some dimensions, but UMAP works better with less dimensions in input. To assess the importance of each PC, there are a few representative methods :
+
+``` {r Dimensionality, eval=F, echo=T}
+# Plot the p-values associated with each PC and compare them to a uniform distribution (dashed line). PCs for which the genes have very low p-values are more likely to be of significative importance
 incisor <- JackStraw(incisor, num.replicate = 100)
 incisor <- ScoreJackStraw(incisor, dims = 1:20)
 JackStrawPlot(incisor, dims = 1:20)
+
+# Plots all PCs with a ranking depending on the percentage of total variance that is explained by them. 
 ElbowPlot(incisor)
 
 ```
 
-``` {r Clustering, eval=FALSE}
+# Non-linear dimensional reduction through UMAP
+Here we decided to stick with 20 dimensions despite the high drop after 10 PCs on the Elbow Plot. The analysis done with only 10 PCs showed similar results.
+
+```{r UMAP, eval=F, echo=T}
+#Run the UMAP on the dataset
+incisor <- RunUMAP(incisor, dims = 1:20)
+
+#Visualize UMAP result in a 2 dimension graph
+DimPlot(incisor, reduction = "umap")
+```
+
+# Clustering 
+Based on how the cells have been separated in space by our subsequent dimensional reductions, we hope to find cluster of cells that are close to each other and could be the same cell type. We thereby want to establish the dental cell atlas based on these clusters that will represent supposedly all the cell types within mouse incisor.
+The FindNeighbors technique is used. Based on the distance matrix, it constructs a graph of the closest neighbours then refine the weight of the border between two cells depending on their shared common identity with their common neighbours, locally. 
+This data is used to generate clusters with the FindClusters tool.
+``` {r Clustering, eval=F, echo=T}
+
+# Apply the FindNeighbors technique and FindClusters 
 incisor <- FindNeighbors(incisor, dims = 1:20)
 incisor <- FindClusters(incisor, resolution = 0.5)
-head(Idents(incisor), 5)
-```
 
-```{r UMAP/tSNE, eval=FALSE}
-incisor <- RunUMAP(incisor, dims = 1:20)
+# Visualize the UMAP plot again with the clusters added, each in a different color
 DimPlot(incisor, reduction = "umap")
-saveRDS(incisor, file = "incisor.rds")
+
 ```
 
-```{r Cluster biomarkers, eval=FALSE}
+# Finding clusters' biomarkers
+
+```{r Cluster biomarkers, eval=F, echo=T}
 cluster1.markers <- FindMarkers(incisor, ident.1 = 1, min.pct = 0.25)
 head(cluster1.markers, n = 5)
 
