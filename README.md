@@ -122,6 +122,8 @@ plot2 <- FeatureScatter(incisor, feature1 = "nCount_RNA", feature2 = "nFeature_R
 plot1 + plot2
 ```
 
+![Cells quality control plot]()
+
 # Selection to eliminate the cells supposed of bad quality 
 
 ```{r Features filtering, eval=F, echo=T}
