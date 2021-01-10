@@ -133,7 +133,7 @@ incisor <- subset(incisor, subset = nFeature_RNA > quantile5_incisor & percent.m
 # Visualize the effects of the filter on the dataset
 VlnPlot(incisor, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 ```
-![Cells quality control plot](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/After%20selection.png)
+![Cells quality control plot after selection of cells](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/After%20selection.png)
 
 # Normalization
 To have a relevant comparison of gene expression levels across cells, we normalize the count numbers using the LogNormalize method that normalize the expression of each transcript in each given cell by the total expression and multiplies it by the scale factor.
@@ -160,7 +160,7 @@ plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE, xnudge=0, ynudg
 plot1
 plot2
 ```
-![Cells quality control plot](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/Most%20variable%20genes.png)
+![Variable genes](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/Most%20variable%20genes.png)
 # Scaling the data
 Prior to perform reduction dimension of our dataset, we need to scale the data. The ScaleData function basically shift the mean expression and variance across cells to 0 and 1, respectively. Its purpose is to avoid bias in downstream analyses due to genes that are have a very high number of counts whenever they are expressed by a cell.
 
@@ -191,6 +191,9 @@ DimPlot(incisor, reduction = "pca")
 # Shows a heatmap of gene expression across the dataset for the genes with which the selected dimension have been constructed
 DimHeatmap(incisor, dims = 1, cells = 2257, balanced = TRUE)
 ```
+![PCA](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/ACP.png)
+![PC1 HeatMap](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/HeatMap%20PC1%20ACP.png)
+![PC1 VizDimLoadings](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/PCA%20VizDimLoadings.png)
 
 # Choose the dimensionality of the dataset
 We want to ultimately reduce the dimensionality of our dataset to a representation in 2 dimension to better apprehend our dataset. 
@@ -205,6 +208,8 @@ JackStrawPlot(incisor, dims = 1:20)
 # Plots all PCs with a ranking depending on the percentage of total variance that is explained by them. 
 ElbowPlot(incisor)
 ```
+![Jackstraw](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/JackStraw%20Plot.png)
+![Elbow Plot](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/Elbow%20Plot.png)
 
 # Non-linear dimensional reduction through UMAP
 Here we decided to stick with 20 dimensions despite the high drop after 10 PCs on the Elbow Plot. The analysis done with only 10 PCs showed similar results.
@@ -215,6 +220,7 @@ incisor <- RunUMAP(incisor, dims = 1:20)
 #Visualize UMAP result in a 2 dimension graph
 DimPlot(incisor, reduction = "umap")
 ```
+![UMAP](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/UMAP.png)
 
 # Clustering 
 Based on how the cells have been separated in space by our subsequent dimensional reductions, we hope to find cluster of cells that are close to each other and could be the same cell type. We thereby want to establish the dental cell atlas based on these clusters that will represent supposedly all the cell types within mouse incisor.
@@ -227,6 +233,7 @@ incisor <- FindClusters(incisor, resolution = 0.5)
 # Visualize the UMAP plot again with the clusters added, each in a different color
 DimPlot(incisor, reduction = "umap")
 ```
+![UMAP with clusters](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/UMAP%20with%20clusters.png)
 
 # Finding clusters' biomarkers
 To finish our atlas, we need to identify the cell types that clusters could correspond to. We seeked for the specific markers of each clusters. Based on online databases such as Blast to identify the function of those genes and which cell types normally express them, we tried to annote our clusters.
@@ -256,6 +263,12 @@ DoHeatmap(incisor, features = top10$gene) + NoLegend()
 top2 <- incisor.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_log2FC)
 DoHeatmap(incisor, features = top2$gene) + NoLegend()
 ```
+
+![Find All Markers](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/FindAllMarkers.png)
+![Cluster markers Violin Plotted](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/VlnPlot%20cluster%20markers.png)
+![Feature Plots](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/FeaturePlots.png)
+![Clusters with cell types names](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/Cluster%20with%20names.png)
+
 # RNA velocity
 We then tried to establish if cells from a given cluster preferentially becomes cells from another cluster. This would suggest that these clusters are intermediate cell types along a differentiation pathway. This is done through RNA velocity, which describes the rate of gene expression change for an individual gene at a given time point based on the ratio of its spliced and unspliced mRNA. This is done through alignment with mus musculus genome using STAR. This analysis done on thousands of transcripts allow to infer if a cell was currently acquiring a gene expression profile closer to another given cell in the dataset.
 The whole process and the method are described further in this GitHub :
