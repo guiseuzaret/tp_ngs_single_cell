@@ -133,7 +133,7 @@ incisor <- subset(incisor, subset = nFeature_RNA > quantile5_incisor & percent.m
 # Visualize the effects of the filter on the dataset
 VlnPlot(incisor, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
 ```
-![Cells quality control plot]()
+![Cells quality control plot](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/After%20selection.png)
 
 # Normalization
 To have a relevant comparison of gene expression levels across cells, we normalize the count numbers using the LogNormalize method that normalize the expression of each transcript in each given cell by the total expression and multiplies it by the scale factor.
@@ -160,7 +160,7 @@ plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE, xnudge=0, ynudg
 plot1
 plot2
 ```
-
+![Cells quality control plot]()
 # Scaling the data
 Prior to perform reduction dimension of our dataset, we need to scale the data. The ScaleData function basically shift the mean expression and variance across cells to 0 and 1, respectively. Its purpose is to avoid bias in downstream analyses due to genes that are have a very high number of counts whenever they are expressed by a cell.
 
