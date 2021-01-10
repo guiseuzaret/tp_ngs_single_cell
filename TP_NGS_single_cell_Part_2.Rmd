@@ -255,5 +255,6 @@ top2 <- incisor.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_log2FC)
 DoHeatmap(incisor, features = top2$gene) + NoLegend()
 
 ```
-# ARN velocity
+# RNA velocity
+We then tried to establish if cells from a given cluster preferentially becomes cells from another cluster. This would suggest that these clusters are intermediate cell types along a differentiation pathway. This is done through RNA velocity. The presence of unspliced versus spliced transcripts for each gene is analyzed to decipher if the cell is increasing or decreasing the expression of this gene. This analysis done on thousands of transcripts allow to infer if a cell was currently acquiring a gene expression profile closer to another given cell in the dataset.
 https://github.com/Lelmose/TP_NGS_2020_Single_Cell
