@@ -219,7 +219,7 @@ DimPlot(incisor, reduction = "umap")
 # Clustering 
 Based on how the cells have been separated in space by our subsequent dimensional reductions, we hope to find cluster of cells that are close to each other and could be the same cell type. We thereby want to establish the dental cell atlas based on these clusters that will represent supposedly all the cell types within mouse incisor.
 The FindNeighbors technique is used. Based on the distance matrix, it constructs a graph of the closest neighbours then refine the weight of the border between two cells depending on their shared common identity with their common neighbours, locally. 
-This data is used to generate clusters with the FindClusters tool.
+This data is used to generate clusters with the FindClusters tool. The "resolution" parameter determines the number of clusters that are generated.
 ``` {r Clustering, eval=F, echo=T}
 # Apply the FindNeighbors technique and FindClusters 
 incisor <- FindNeighbors(incisor, dims = 1:20)
