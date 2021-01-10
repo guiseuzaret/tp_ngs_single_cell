@@ -160,7 +160,7 @@ plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE, xnudge=0, ynudg
 plot1
 plot2
 ```
-![Cells quality control plot]()
+![Cells quality control plot](https://github.com/guiseuzaret/tp_ngs_single_cell/blob/master/Most%20variable%20genes.png)
 # Scaling the data
 Prior to perform reduction dimension of our dataset, we need to scale the data. The ScaleData function basically shift the mean expression and variance across cells to 0 and 1, respectively. Its purpose is to avoid bias in downstream analyses due to genes that are have a very high number of counts whenever they are expressed by a cell.
 
