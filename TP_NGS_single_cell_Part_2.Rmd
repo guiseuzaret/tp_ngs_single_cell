@@ -238,17 +238,19 @@ incisor.markers %>% group_by(cluster) %>% top_n(n = 5, wt = avg_log2FC)
 cluster1.markers <- FindMarkers(incisor, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
 head(cluster1.markers, n = 5)
 
+# Plot the expression levels in cells classified by clusters for a given marker
 VlnPlot(incisor, features = c("Mrc1", "C1qb"))
 VlnPlot(incisor, features = c("Mrc1", "C1qb"), slot = "counts", log = TRUE)
 
-incisor.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_log2FC)
+# Show the distribution of cells expressing a given marker on the UMAP
 FeaturePlot(incisor, features = c("Smoc2", "C1qb","Tnc","Emcn","Car2","Sfrp2","Cd83","Epcam"))
 FeaturePlot(incisor, features = c("S100a9","Cd209a","Ibsp","Scn7a","Rgs5","Krt17","Gm10801","Gm17660"))
 
+# Generates a HeatMap of the expression of the 10 best markers of each cluster across all the dataset
 top10 <- incisor.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
 DoHeatmap(incisor, features = top10$gene) + NoLegend()
 
-#Avec moins de gènes par cluster pour plus de lisibilité de la HeatMap
+# Same HeatMap with only the 2 best markers so that it's more readable
 top2 <- incisor.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_log2FC)
 DoHeatmap(incisor, features = top2$gene) + NoLegend()
 
