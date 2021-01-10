@@ -50,8 +50,7 @@ Using Salmon, we then quantify the occurence of each cDNA transcript (identified
 In this second part, we will use these incisor single-cell transcriptomic data to generate an atlas of the cell types in mouse incisor based on gene expression profiles. 
 This process if fully described in the "TP NGS single cell part 2.Rmd" file in this same GitHub.
 
-
-
+https://github.com/guiseuzaret/tp_ngs_single_cell
 
 
 
